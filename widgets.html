@@ -1,0 +1,141 @@
+<html>
+<head>
+  <title>Penn Medicine Widgets</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/pos.css">
+  <script src="https://use.fontawesome.com/b4a73a7b3c.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/b4a73a7b3c.css" media="all">
+  <!-- Include Date Range Picker -->
+  <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+  <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+<body>
+
+<div id="main-content" class="aop-taupe-bg">
+    <div class="container container-fluid clearfix">
+        <div class="panel aop-panel">
+            <div class="panel-heading aop-panel-heading">
+                <div class="pull-right"><a class="aop-red" style="cursor: pointer;" onclick="$('#register-items').empty();$('#order_complete_btn').prop('disabled', true);"><i aria-hidden="true" class="fa fa-trash"></i></a></div>
+                Widget Order Form
+            </div>
+            <div class="panel-body aop-panel-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="aop-heading">Widget Options</div>
+                        <div class="col-sm-4">
+                            <div class="aop-heading-sm">Type</div>
+                            <select id="widget_type_sel" class="form-control aop-dark-border" style="margin: 10px 0" value="">
+                                <option value="Widget">Widget</option>
+                                <option value="Widget Pro">Widget Pro</option>
+                                <option value="Widget Xtreme">Widget Xtreme</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="aop-heading-sm">Color</div>
+                            <select id="widget_color_sel" class="form-control aop-dark-border" style="margin: 10px 0" value="">
+                                <option value="Red">Red</option>
+                                <option value="Blue">Blue</option>
+                                <option value="Yellow">Yellow</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <button id="add_to_cart_btn" class="btn btn-sm btn-primary btn-cart">Add to Cart</button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="aop-heading">Shopping Cart</div>
+                        <div class="aop-divider"></div>
+                        <div id="register-items">
+
+                        </div>
+                        <div class="aop-divider"></div>
+                        <div class="aop-taupe-bg" style="margin-top: 10px; padding: 10px;">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="aop-heading-sm">Delivery Date</div>
+                                    <input type="text" name="needed_by" class="form-control input-sm" value="Delivery Date" />
+                                    <script type="text/javascript">
+                                        $(function() {
+                                            var start = moment().add(7, 'days');
+                                            var end = moment().add(180, 'days');
+                                            $('input[name="needed_by"]').daterangepicker({
+                                                "singleDatePicker": true,
+                                                "startDate": start,
+                                                "endDate": end,
+                                                "minDate": start,
+                                                locale: {
+                                                    format: 'YYYY-MM-DD'
+                                                }
+                                            });
+                                        });
+                                    </script>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="aop-heading-sm">Email</div>
+                                    <input type="text" name="email" class="form-control input-sm" />
+                                </div>
+                                <div class="col-md-4">
+                                    <button id="order_complete_btn" class="btn btn-sm btn-success btn-complete" disabled>Complete Order</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function rowDelete(row) {
+        row.parent().parent().parent().remove();
+        if($.trim($("#register-items").html()) == '') {
+            $('#order_complete_btn').prop('disabled', true);
+        }
+    }
+    $(document).ready(function() {
+        $('#add_to_cart_btn').on('click', function() {
+            $('#order_complete_btn').prop('disabled', false);
+            $('#register-items').append('<div class="shopping-cart-row-div"><div class="row aop-register-row"><div class="col-sm-2"><input class="qty-input form-control" name="quantity" type="number" min="1" max="99" value="1"></div><div class="col-md-8 color-and-type" data-type="' + $('#widget_type_sel').val() + '" data-color="' + $('#widget_color_sel').val() + '"><span class="btn btn-link aop-red">' + $('#widget_color_sel').val() + ' ' + $('#widget_type_sel').val() + '</span></div><div class="col-md-1"><button onclick="rowDelete($(this));" class="btn btn-link aop-red row-del"><i aria-hidden="true" class="fa fa-times"></i></button></div></div><div class="aop-divider"></div></div>');
+            $('#widget_color_sel').prop("selectedIndex", 0);
+            $('#widget_type_sel').prop("selectedIndex", 0);
+        });
+        $('#order_complete_btn').on('click', function() {
+            if($.trim($("#register-items").html()) != '') {
+                var row = {}, postData = [];
+                row = {needed_by: $('input[name="needed_by"]').val()};
+                postData.push(row);
+                row = {email: $('input[name="email"]').val()};
+                postData.push(row);
+                $('.shopping-cart-row-div').each(function(index, elem) {
+                    row = {qty: $(elem).find('input.qty-input').val(), type: $(elem).find('div.color-and-type').attr("data-type"), color: $(elem).find('div.color-and-type').attr("data-color")};
+                    postData.push(row);
+                });
+                //console.log(postData);
+                $.ajax({
+                    url: "./submit.php",
+                    type: "POST",
+                    dataType: "JSON",
+                    data: JSON.stringify(postData),
+                    success: function(data) {
+                        if(data.status == 'error') {
+                            //console.log('ERROR: ' + data.message);
+                            alert('There was an issue with the order! Error Message: ' + data.message);
+                        } else {
+                            //console.log('SUCCESS: ' + data.message);
+                            alert('Order Successfully Submitted! Order ID: ' + data.message);
+                            window.location.reload();
+                        }
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
